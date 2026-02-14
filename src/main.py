@@ -12,12 +12,19 @@ app = Flask(__name__, static_folder='statics')
 # URL of your Flask API for making predictions
 api_url = 'http://0.0.0.0:4000/predict'  # Update with the actual URL
 
-# Load the TensorFlow model
+# Load the TensorFlow model and its scaler
 model = None
+tf_scaler = None
 try:
-    model = tf.keras.models.load_model('my_model.keras')  # Replace 'my_model.keras' with the actual model file
+    model = tf.keras.models.load_model('my_model.keras')
 except Exception:
     model = None
+
+if os.path.exists('tf_scaler.joblib'):
+    try:
+        tf_scaler = joblib.load('tf_scaler.joblib')
+    except Exception:
+        tf_scaler = None
 
 class_labels = ['Setosa', 'Versicolor', 'Virginica']
 
@@ -47,15 +54,18 @@ def predict():
             petal_length = float(data['petal_length'])
             petal_width = float(data['petal_width'])
 
-            # Perform the prediction (TensorFlow model expects scaled inputs if training used scaling)
             input_data = np.array([sepal_length, sepal_width, petal_length, petal_width])[np.newaxis, ]
+
             if model is None:
                 return jsonify({"error": "TensorFlow model not available on server."}), 503
+
+            # Apply the same scaling that was used during training
+            if tf_scaler is not None:
+                input_data = tf_scaler.transform(input_data)
+
             prediction = model.predict(input_data)
             predicted_class = class_labels[np.argmax(prediction)]
 
-            # Return the predicted class in the response
-            # Use jsonify() instead of json.dumps() in Flask
             return jsonify({"predicted_class": predicted_class})
         except Exception as e:
             return jsonify({"error": str(e)})

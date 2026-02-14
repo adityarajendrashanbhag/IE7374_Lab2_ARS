@@ -1,5 +1,5 @@
 services:
-  # Service 1: Train the model
+  # Service 1: Train both models (TF + RF)
   model-training:
     image: python:3.10-slim
     container_name: ml_trainer
@@ -8,11 +8,15 @@ services:
       - ./src:/app/src
       - ./requirements.txt:/app/requirements.txt
       - model_exchange:/exchange   # Shared volume mount
-    # Run training -> Copy result to shared folder
+    # Run both training scripts -> Copy all artifacts to shared folder
     command: >
       sh -c "pip install -r requirements.txt &&
              python src/model_training.py &&
-             cp my_model.keras /exchange/my_model.keras"
+             python src/train_rf.py &&
+             cp my_model.keras /exchange/my_model.keras &&
+             cp tf_scaler.joblib /exchange/tf_scaler.joblib &&
+             cp rf_model.joblib /exchange/rf_model.joblib &&
+             cp scaler.joblib /exchange/scaler.joblib"
 
   # Service 2: Serve the model
   serving:
@@ -24,16 +28,17 @@ services:
     volumes:
       - ./src:/app/src
       - ./requirements.txt:/app/requirements.txt
-      - ./src/templates:/app/templates
-      - ./src/statics:/app/statics
       - model_exchange:/exchange   # Shared volume mount
     depends_on:
       model-training:
         condition: service_completed_successfully
-    # Copy result FROM shared folder -> Run server
+    # Copy all artifacts FROM shared folder -> Run server
     command: >
       sh -c "pip install --trusted-host pypi.python.org -r requirements.txt &&
              cp /exchange/my_model.keras ./my_model.keras &&
+             cp /exchange/tf_scaler.joblib ./tf_scaler.joblib &&
+             cp /exchange/rf_model.joblib ./rf_model.joblib &&
+             cp /exchange/scaler.joblib ./scaler.joblib &&
              python src/main.py"
 
 volumes:
