@@ -93,9 +93,9 @@ python main.py
 
 | Page | URL |
 |---|---|
-| Home | http://127.0.0.1:4000/ |
-| TensorFlow Predictor | http://127.0.0.1:4000/predict |
-| RandomForest Predictor | http://127.0.0.1:4000/predict_rf |
+| Home | http://127.0.0.1:80/ |
+| TensorFlow Predictor | http://127.0.0.1:80/predict |
+| RandomForest Predictor | http://127.0.0.1:80/predict_rf |
 
 ---
 
@@ -188,6 +188,22 @@ curl -X POST http://localhost:4000/predict \
 - Trained on the same 80/20 split with `random_state=42`
 
 Both models are trained on the classic [Iris dataset](https://scikit-learn.org/stable/datasets/toy_dataset.html#iris-dataset) (150 samples, 4 features, 3 classes).
+
+---
+
+## Screenshots
+
+<img width="1906" height="1011" alt="image" src="https://github.com/user-attachments/assets/91ed148e-e3c6-4468-9591-92ed66800779" />
+
+<br>
+
+<img width="1886" height="998" alt="image" src="https://github.com/user-attachments/assets/dc46e3bf-1f75-4c3c-825d-e8a915551195" />
+
+<br>
+
+<img width="1917" height="996" alt="image" src="https://github.com/user-attachments/assets/0748b0e6-4330-490d-a32a-cfafd5f5441b" />
+
+
 
 ---
 
