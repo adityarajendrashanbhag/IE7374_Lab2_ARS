@@ -1,5 +1,8 @@
 from flask import Flask, request, jsonify, render_template
-import tensorflow as tf
+try:
+    import tensorflow as tf
+except Exception:
+    tf = None
 import numpy as np
 import os
 import joblib
